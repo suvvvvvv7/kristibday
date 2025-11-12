@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy B'day, Kisstea 🌸</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Playfair+Display:ital@0;1&family=Italiana&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --sage: #c6d6c4;
+      --ivory: #fffaf0;
+      --blush: #f6dce0;
+      --lilac: #e8dff3;
+      --gold: #f1d9a7;
+      --muted: rgba(20,20,20,0.6);
+      --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Playfair Display",serif;background:linear-gradient(180deg,#f3f6f2 0%,#f8f4fb 100%);color:#1b1b1b;overflow:hidden}
+    .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:28px}
+    /* Top-right controls */
+    .music-toggle{
+      position:fixed; right:18px; top:18px; z-index:200; background:var(--glass); border-radius:12px; padding:8px 10px; display:flex; gap:8px; align-items:center; box-shadow:0 8px 30px rgba(0,0,0,0.06); backdrop-filter: blur(6px); font-size:0.95rem;
+    }
+    .music-toggle button{ border:none; background:transparent; cursor:pointer; font-weight:bold; color:var(--muted) }
+    /* Landing */
+    .hero{ text-align:center; z-index:10; padding:18px; margin-top:18px }
+    h1{ font-family:"Parisienne",cursive; font-size:3.8rem; margin:0;color:#6b3b5a; text-shadow:0 6px 18px rgba(107,59,90,0.08) }
+    .lead{ font-style:italic; color:#4a4a4a; margin:10px 0 18px; font-size:1.05rem }
+    .enter-btn{ background:linear-gradient(180deg,var(--blush),var(--lilac)); border:none; padding:12px 24px; border-radius:999px; font-weight:bold; cursor:pointer; box-shadow:0 12px 30px rgba(150,120,160,0.12); font-family:"Italiana",serif }
+    /* Meadow area */
+    .meadow{ position:fixed; inset:0; display:none; z-index:20; padding:48px; overflow:auto; -webkit-overflow-scrolling:touch; background: linear-gradient(180deg, rgba(250,248,250,0.85), rgba(240,238,242,0.95)) }
+    .container{ max-width:1100px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; gap:26px; align-items:center; padding-bottom:60px }
+    .section-title{ font-family:"Parisienne"; font-size:1.6rem; color:#5b3250; margin:6px 0 }
+    /* Flowers game */
+    .flower-field{ display:flex; gap:18px; flex-wrap:wrap; justify-content:center; align-items:center; padding:12px }
+    .flower-btn{
+      width:96px; height:96px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 12px 30px rgba(120,120,110,0.06);
+      background:linear-gradient(180deg,#fffaf5,#fff1f8); border:1px solid rgba(200,160,180,0.12); transition:transform .18s ease, box-shadow .18s;
+      position:relative; font-family:"Italiana",serif; font-size:1.9rem;
+    }
+    .flower-btn:hover{ transform:translateY(-6px) }
+    .flower-btn.revealed{ transform:scale(0.98); opacity:0.92; background:linear-gradient(180deg,#fff8f9,#fff0f5) }
+    .note-popup{ position:fixed; z-index:220; left:50%; top:50%; transform:translate(-50%,-50%); background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,248,250,0.98)); padding:18px 20px; border-radius:12px; box-shadow:0 30px 60px rgba(30,30,30,0.08); display:none; max-width:78%; text-align:center }
+    .note-popup.show{ display:block }
+    .note-popup p{ margin:0; font-style:italic; color:#4a4a4a }
+    .found-msg{ margin-top:10px; color:#5b3250; font-weight:600 }
+    /* Cake */
+    .cake-wrap{ display:flex; flex-direction:column; align-items:center; gap:12px; margin-top:6px }
+    .cake{
+      width:220px; height:140px; border-radius:12px; background:linear-gradient(180deg,#fff7f7,#fff0f2); box-shadow:0 22px 40px rgba(200,140,160,0.08); position:relative; display:flex; align-items:flex-start; justify-content:center; padding-top:16px;
+    }
+    .cake .layer{ width:88%; height:36px; border-radius:8px; margin:4px 0; box-shadow:inset 0 -6px 16px rgba(0,0,0,0.02) }
+    .layer.one{ background:linear-gradient(180deg,#fff1f3,#ffdfe9) }
+    .layer.two{ background:linear-gradient(180deg,#fff7e8,#fff0d6) }
+    .candles{ position:absolute; top:8px; display:flex; gap:8px }
+    .candle{ width:8px; height:20px; background:#fff; border-radius:2px; display:flex; align-items:flex-start; justify-content:center; position:relative }
+    .flame{ width:8px; height:10px; background:linear-gradient(180deg,#ffd89b,#ffb36b); border-radius:50%; position:absolute; top:-8px; left:50%; transform:translateX(-50%); box-shadow:0 6px 12px rgba(255,160,90,0.12) }
+    .blown .flame{ opacity:0; transform:translateY(6px) scale(0.8) }
+    .cake-btn{ background:linear-gradient(180deg,#f7efe6,#f2e7dd); border:none; padding:10px 14px; border-radius:999px; cursor:pointer; box-shadow:0 8px 26px rgba(120,90,110,0.08) }
+    /* Balloons */
+    .balloon{ position:fixed; width:44px; height:56px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; display:flex; align-items:center; justify-content:center; z-index:150; opacity:0.95 }
+    /* Gift */
+    .center-stage{ display:flex; gap:24px; align-items:center; justify-content:center; flex-wrap:wrap }
+    .gift{ width:160px; height:160px; border-radius:12px; background:linear-gradient(180deg,#f7efe6,#f2e7dd); box-shadow:0 18px 40px rgba(140,110,120,0.14); display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:transform .25s ease }
+    .gift:hover{ transform:translateY(-8px) }
+    .gift-ribbon{ position:absolute; width:20px; height:160px; left:calc(50% - 10px); background:linear-gradient(180deg,#e8b4d1,#c98fb1); border-radius:4px }
+    .gift-horizontal{ position:absolute; height:20px; width:160px; top:calc(50% - 10px); background:linear-gradient(90deg,#e8b4d1,#c98fb1); border-radius:4px }
+    .gift-bow{ width:72px; height:72px; position:absolute; top:-18px; left:calc(50% - 36px); background: radial-gradient(circle at 40% 40%, #ffcfe1, #e6a1c2); border-radius:36px; box-shadow:0 8px 20px rgba(200,110,140,0.18) }
+    .message-card{ width:600px; max-width:92%; background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,248,250,0.98)); padding:22px 24px; border-radius:12px; box-shadow:0 30px 60px rgba(30,30,30,0.06); opacity:0; transform:translateY(8px) scale(.98); transition:all .5s cubic-bezier(.2,.9,.2,1); display:none; text-align:left }
+    .message-card.show{ display:block; opacity:1; transform:translateY(0) scale(1) }
+    .message-card h2{ margin:0; font-family:"Parisienne",cursive; font-size:1.8rem; color:#6a3a54 }
+    .message-card p{ margin:10px 0 0; color:#3b3b3b; line-height:1.45; font-size:1rem; font-style:italic }
+    /* Firefly ending */
+    .ending{ width:100%; text-align:center; padding:40px 12px; margin-top:12px }
+    .ending h3{ font-family:"Parisienne"; font-size:2rem; margin:0 0 8px 0; color:#5b3250 }
+    .ending p{ margin:0; color:#4b4b4b; font-style:italic }
+    .night-bg{ position:fixed; inset:0; background:linear-gradient(180deg,#0f1530 0%, rgba(10,10,26,0.8) 60%); opacity:0; pointer-events:none; transition:opacity 1s ease; z-index:120 }
+    .night-bg.show{ opacity:1; pointer-events:auto }
+    .firefly{ position:fixed; width:8px; height:8px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #fff, #ffd), linear-gradient(180deg,#fff6b8,#ffd3b8); filter:blur(0.6px); opacity:0; z-index:160; pointer-events:none }
+    /* responsive tweaks */
+    @media (max-width:720px){
+      h1{ font-size:2.6rem } .cake{ width:180px; height:120px } .gift{ width:140px; height:140px } .flower-btn{ width:78px; height:78px }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- MUSIC CONTROL -->
+    <div class="music-toggle" id="musicToggle">
+      <span class="muted">Music</span>
+      <button id="playBtn">▶ Play</button>
+      <button id="muteBtn">🔈</button>
+    </div>
+
+    <!-- LANDING -->
+    <div class="hero" id="landing">
+      <h1>happy b'day, kisstea</h1>
+      <p class="lead">you are a poem in a sunlit field — this is for you. tap to begin</p>
+      <button class="enter-btn" id="enterBtn">Enter the Meadow</button>
+    </div>
+
+    <!-- MEADOW (hidden until enter) -->
+    <main class="meadow" id="meadow">
+      <div class="container">
+
+        <!-- Flower Game -->
+        <div style="width:100%; text-align:center">
+          <div class="section-title">pick a flower</div>
+          <div style="color:var(--muted); margin-bottom:8px">click each flower to reveal a little note</div>
+          <div class="flower-field" id="flowerField" aria-live="polite">
+            <!-- Buttons injected by JS -->
+          </div>
+          <div id="foundAllMsg" class="found-msg" style="display:none">you found them all, kisstea 🌷 now open the cake or your gift 🎁</div>
+        </div>
+
+        <!-- Cake -->
+        <div style="width:100%; text-align:center" class="cake-wrap" id="cakeSection">
+          <div class="section-title">make a wish</div>
+          <div style="color:var(--muted); margin-bottom:8px">click the cake to blow the candles</div>
+          <div class="cake" id="cake">
+            <div class="candles" id="candles">
+              <div class="candle"><div class="flame"></div></div>
+              <div class="candle"><div class="flame"></div></div>
+              <div class="candle"><div class="flame"></div></div>
+            </div>
+            <div class="layer one"></div>
+            <div class="layer two"></div>
+          </div>
+          <button class="cake-btn" id="cakeBtn">Blow the candles</button>
+        </div>
+
+        <!-- Center: Gift -->
+        <div style="width:100%; text-align:center; margin-top:8px">
+          <div class="section-title">open your gift</div>
+          <div style="color:var(--muted); margin-bottom:8px">click the box to see the message</div>
+          <div class="center-stage">
+            <div class="gift" id="gift">
+              <div class="gift-ribbon"></div>
+              <div class="gift-horizontal"></div>
+              <div class="gift-bow"></div>
+            </div>
+            <div class="message-card" id="messageCard" role="dialog" aria-hidden="true">
+              <h2>For my Kisstea</h2>
+              <p id="giftText">
+                happy b'day kisstea, i made some of my favourite memories w you in those few months and can't wait to explore more places together. you almost killed me but it was worth everything, and maybe, in another universe, we are still living together, waking up at 1 and eating momos for breakfast. i miss you a lot. and yes, shillong toh jana hi parega!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ending -->
+        <div class="ending" id="endingSection" style="opacity:0; transform:translateY(8px); transition:all .9s ease">
+          <h3>may your days always bloom</h3>
+          <p style="margin-top:8px" id="endingSub">In every light that glows, I’ll always find you — my friend.</p>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Note popup -->
+    <div class="note-popup" id="notePopup"><p id="noteText"></p></div>
+
+    <!-- Night background for ending -->
+    <div class="night-bg" id="nightBg"></div>
+
+    <!-- Firefly container (fireflies are created by JS) -->
+  </div>
+
+  <!-- LOCAL AUDIO: place salvatore.mp3 in the same folder -->
+  <audio id="bgAudio" loop>
+    <source src="salvatore.mp3" type="audio/mpeg">
+    <!-- If you want a different path, replace the src above -->
+  </audio>
+
+  <script>
+    /* ====== Setup & content ====== */
+    const flowerMessages = [
+      "you’re chaos but i love it",
+      "remember the momo breakfast? 🥟",
+      "shillong soon — pack your jacket! ⛰️",
+      "thank you for always making me laugh",
+      "you make everything more fun"
+    ];
+    // Elements
+    const landing = document.getElementById('landing');
+    const enterBtn = document.getElementById('enterBtn');
+    const meadow = document.getElementById('meadow');
+    const flowerField = document.getElementById('flowerField');
+    const notePopup = document.getElementById('notePopup');
+    const noteText = document.getElementById('noteText');
+    const foundAllMsg = document.getElementById('foundAllMsg');
+    const cake = document.getElementById('cake');
+    const cakeBtn = document.getElementById('cakeBtn');
+    const candles = document.getElementById('candles');
+    const gift = document.getElementById('gift');
+    const messageCard = document.getElementById('messageCard');
+    const bgAudio = document.getElementById('bgAudio');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const endingSection = document.getElementById('endingSection');
+    const nightBg = document.getElementById('nightBg');
+
+    /* ====== Utility: spawn balloon ====== */
+    function spawnBalloons(count=8){
+      for(let i=0;i<count;i++){
+        const b = document.createElement('div');
+        b.className = 'balloon';
+        b.style.left = (20 + Math.random()*60) + 'vw';
+        b.style.bottom = '-120px';
+        const colors = ['#f9d5e5','#e8dff3','#fff1d6','#dff6ea'];
+        b.style.background = colors[Math.floor(Math.random()*colors.length)];
+        b.style.zIndex = 140 + Math.floor(Math.random()*20);
+        document.body.appendChild(b);
+        const dur = 5000 + Math.random()*4000;
+        b.animate([{ transform:'translateY(0) rotate(0deg)', opacity:1 }, { transform:`translateY(-120vh) rotate(${Math.random()*80-40}deg)`, opacity:0.95 }], { duration:dur, easing:'ease-out' });
+        setTimeout(()=> b.remove(), dur + 400);
+      }
+    }
+
+    /* ====== Confetti (soft pastel squares) ====== */
+    function spawnConfetti(n=60){
+      for(let i=0;i<n;i++){
+        const c = document.createElement('div');
+        c.style.position='fixed';
+        c.style.left = (40 + (Math.random()*60-30)) + 'vw';
+        c.style.top = (40 + Math.random()*20) + 'vh';
+        c.style.width = (6+Math.random()*8) + 'px';
+        c.style.height = (8+Math.random()*8) + 'px';
+        c.style.background = ['#f8d1e3','#d8e9f0','#fff1d6','#e8dff3'][Math.floor(Math.random()*4)];
+        c.style.transform = `rotate(${Math.random()*360}deg)`;
+        c.style.zIndex = 190;
+        c.style.borderRadius = '3px';
+        document.body.appendChild(c);
+        const dur = 1200 + Math.random()*1400;
+        c.animate([{ transform:'translateY(0) rotate(0deg)', opacity:1 },{ transform:`translateY(${(90+Math.random()*130)}vh) rotate(${Math.random()*720}deg)`, opacity:0 }], { duration:dur, easing:'cubic-bezier(.2,.9,.2,1)' });
+        setTimeout(()=> c.remove(), dur + 200);
+      }
+    }
+
+    /* ====== Fireflies ====== */
+    function spawnFireflies(n=18){
+      for(let i=0;i<n;i++){
+        const f = document.createElement('div');
+        f.className = 'firefly';
+        // random start position
+        const left = Math.random()*100;
+        const top = 20 + Math.random()*70;
+        f.style.left = left + 'vw';
+        f.style.top = top + 'vh';
+        document.body.appendChild(f);
+        // animate glow & float
+        const dx = (Math.random()*40 - 20);
+        const dy = (Math.random()*20 - 10);
+        const dur = 3000 + Math.random()*4000;
+        f.animate([
+          { transform:`translate(0px,0px) scale(1)`, opacity:0 },
+          { transform:`translate(${dx}px,${dy}px) scale(1.1)`, opacity:0.95 },
+          { transform:`translate(${dx*1.6}px,${dy*1.2}px) scale(.9)`, opacity:0.2 }
+        ], { duration:dur, iterations:Infinity, direction:'alternate', easing:'ease-in-out' });
+        // gentle fade-in
+        f.animate([{ opacity:0 }, { opacity:0.9 }], { duration:600, fill:'forwards' });
+        // cleanup when leaving (not strictly necessary)
+        setTimeout(()=> {
+          f.style.opacity = 0;
+          setTimeout(()=> f.remove(), 1600);
+        }, 120000);
+      }
+    }
+
+    /* ====== Flower game creation ====== */
+    let revealedCount = 0;
+    const totalFlowers = flowerMessages.length;
+    function createFlowers(){
+      flowerField.innerHTML = '';
+      for(let i=0;i<totalFlowers;i++){
+        const btn = document.createElement('button');
+        btn.className = 'flower-btn';
+        btn.setAttribute('aria-label','flower ' + (i+1));
+        btn.dataset.index = i;
+        // display a simple petal emoji for aesthetic
+        btn.innerHTML = '🌸';
+        btn.addEventListener('click', () => {
+          if (btn.classList.contains('revealed')) return;
+          btn.classList.add('revealed');
+          revealedCount++;
+          showNote(flowerMessages[i]);
+          // small bloom animation
+          btn.animate([{ transform:'scale(1)' }, { transform:'scale(1.12)' }, { transform:'scale(1)' }], { duration:420 });
+          if (revealedCount === totalFlowers){
+            // small celebration
+            foundAllMsg.style.display = 'block';
+            spawnConfetti(40);
+          }
+        });
+        flowerField.appendChild(btn);
+      }
+    }
+
+    function showNote(text){
+      noteText.textContent = text;
+      notePopup.classList.add('show');
+      setTimeout(()=> notePopup.classList.remove('show'), 2400);
+    }
+
+    /* ====== Cake interaction ====== */
+    let candlesBlown = false;
+    function blowCandles(){
+      if (candlesBlown) return;
+      candlesBlown = true;
+      // add class to hide flames
+      candles.classList.add('blown');
+      // spawn balloons & confetti
+      spawnBalloons(9);
+      spawnConfetti(24);
+      // gentle hint to open gift
+      setTimeout(()=> {
+        foundAllMsg.style.display = 'block';
+        foundAllMsg.textContent = "that was perfect — now open your gift 🎁";
+      }, 900);
+    }
+
+    /* ====== Gift box reveal ====== */
+    gift.addEventListener('click', () => {
+      if (!messageCard.classList.contains('show')) {
+        // animate gift "pop"
+        gift.animate([
+          { transform:'translateY(0) scale(1)' },
+          { transform:'translateY(-8px) scale(1.06)' },
+          { transform:'translateY(0) scale(1)' }
+        ], { duration:360, easing:'cubic-bezier(.2,.9,.2,1)' });
+        messageCard.classList.add('show');
+        // spawn balloons/confetti for celebration
+        spawnBalloons(10);
+        spawnConfetti(80);
+        // after a delay, show firefly ending
+        setTimeout(()=> {
+          startNightEnding();
+        }, 2800);
+      } else {
+        messageCard.classList.remove('show');
+      }
+    });
+
+    /* ====== Night / Firefly Ending ====== */
+    function startNightEnding(){
+      // show night background
+      nightBg.classList.add('show');
+      // spawn fireflies
+      spawnFireflies(18);
+      // reveal ending text
+      setTimeout(()=> {
+        endingSection.style.opacity = 1;
+        endingSection.style.transform = 'translateY(0)';
+      }, 700);
+      // slowly fade music after long delay (optional gentle)
+      setTimeout(()=> {
+        try {
+          const volDecay = setInterval(()=> {
+            if (bgAudio.volume > 0.03) bgAudio.volume = Math.max(0, bgAudio.volume - 0.02);
+            else { bgAudio.pause(); clearInterval(volDecay); bgAudio.volume = 1; }
+          }, 500);
+        } catch(e){}
+      }, 12000);
+    }
+
+    /* ====== Init & Controls ====== */
+    enterBtn.addEventListener('click', () => {
+      landing.style.display = 'none';
+      meadow.style.display = 'block';
+      // try to play music (may be blocked on some browsers)
+      bgAudio.play().catch(()=>{ /* user will press play */ });
+      createFlowers();
+      // spawn a few petals for vibe
+      spawnPetals(8);
+    });
+
+    // play/mute buttons
+    playBtn.addEventListener('click', () => {
+      if (bgAudio.paused){ bgAudio.play().then(()=> playBtn.textContent = '❚❚ Pause').catch(()=>{}); }
+      else { bgAudio.pause(); playBtn.textContent = '▶ Play'; }
+    });
+    muteBtn.addEventListener('click', () => {
+      bgAudio.muted = !bgAudio.muted;
+      muteBtn.textContent = bgAudio.muted ? '🔇' : '🔈';
+    });
+
+    // cake controls
+    cakeBtn.addEventListener('click',
